@@ -48,7 +48,7 @@ function Timer(millis, name) {
 	 * Start new timer in a new thread.
 	 */
 	this.go = function() {
-		thread = Thread(function() {
+		thread = new Thread(function() {
 			while(true) {
 				for (var i=0;i<periode/1000;i++) {
 					java.lang.Thread.sleep(1000);

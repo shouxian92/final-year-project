@@ -15,6 +15,17 @@
  ******************************************************************************/
 // a handler for GET requests to "/"
 app.root.onget = function(request) {
+
+var req = new CoapRequest();
+// request the PIR sensor resource of a mote via CoAP
+req.open("GET", "coap://192.168.1.4:5683/hello",
+false /*synchronous*/);
+// with a application/json response
+req.setRequestHeader("Accept", "application/json");
+req.send(); // blocking
+// and log it to the console after send() returns
+// app.dump(req.responseText);
+
 // that returns CoAP's "2.05 Content" with payload
-		request.respond(2.05, "Hello world");
-	};
+request.respond(2.05, req.responseText);
+};
