@@ -32,6 +32,7 @@ import org.eclipse.californium.actinium.jscoap.JavaScriptCoapConstants;
 import org.eclipse.californium.actinium.jscoap.JavaScriptResource;
 import org.eclipse.californium.actinium.jsmodule.JavaScriptModuleObject;
 import org.eclipse.californium.actinium.jsmodule.NativeJavaModuleObject;
+import org.eclipse.californium.actinium.plugnplay.varmanager.VariableManager;
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 
@@ -42,7 +43,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -89,6 +89,8 @@ public class JavaScriptApp extends AbstractApp implements JavaScriptCoapConstant
 
 	private Map<Object, Object> moduleCache;
 	private DynamicClassloader classloader;
+
+	private VariableManager varManager; // used for storing user defined variables in an object format
 
 	/**
 	 * Constructs a new JavaScriptApp with the given appconfig
@@ -202,10 +204,34 @@ public class JavaScriptApp extends AbstractApp implements JavaScriptCoapConstant
 			engineScope.put("_super", (ISuperCall) (a, b,c) -> jsaccess.superCall(a, b, c));
 
 			String bootstrap = Utils.readFile(JavaScriptApp.class.getResourceAsStream("/bootstrap.js"));
-			code =  bootstrap.replaceAll("//.*?\n","\n").replace('\n',' ') + "(function () {" + code + "}).apply({});";
+			String defaults =  bootstrap.replaceAll("//.*?\n","\n").replace('\n',' ');
 
 			// Execute code
+			engine.eval(defaults, context);
+
+			// TODO: SX stuff
+			varManager = new VariableManager(this);
+			Set<String> initialKeys = engineScope.keySet();
+
+			code = defaults + "(function () {" + code + "}).apply({});";
 			engine.eval(code, context);
+
+
+			if(varManager.varConfigExists()) {
+				String varConfigCode = varManager.loadFromVarConfigFile();
+				engine.eval(varConfigCode, context);
+			} else {
+				Set<String> afterKeys = engineScope.keySet();
+				for(String s : afterKeys) {
+					if(!initialKeys.contains(s)) {
+						varManager.addMapping(s, engineScope.get(s));
+						System.out.println(s + " is a variable defined by the user (current value is: " + engineScope.get(s) + ").");
+					}
+				}
+				varManager.saveToVarConfigFile();
+			}
+
+			// TODO: end of sx
 
         } catch (RuntimeException|ScriptException e) {
 			Throwable cause = e.getCause();
@@ -247,6 +273,12 @@ public class JavaScriptApp extends AbstractApp implements JavaScriptCoapConstant
 		} else if (!appcfg.getBool(AppConfig.ENABLE_REQUEST_DELIVERY)) {
 			request.respond(ResponseCode.FORBIDDEN, "Request delivery has been disabled for this app");
 		} else {
+
+			// TODO: remove plz sx
+			// request.getRequestPayload();
+
+			System.out.println(new String(request.getRequestPayload()));
+
 			requestHandler.handlePUT(request);
 		}
 	}

@@ -36,6 +36,7 @@ public class Config extends AbstractConfig {
 	
 	public static final String APP_PATH = "app_path"; // path to the apps
 	public static final String APP_CONFIG_PATH = "app_config_path"; // path to the configs of apps (which containt the filename)
+	public static final String APP_VAR_CONFIG_PATH = "app_var_config_path"; // path which stores the variable states
 	public static final String APP_LIBS_PATH = "app_libs_path";
 	public static final String APP_CONFIG_RESOURSES = "app_config_resources";
 
@@ -65,6 +66,7 @@ public class Config extends AbstractConfig {
 	private void init() {
 		setProperty(APP_PATH, "appserver/installed/");
 		setProperty(APP_CONFIG_PATH, "appserver/apps/");
+		setProperty(APP_VAR_CONFIG_PATH, "appserver/appsconfig/");
 		setProperty(APP_LIBS_PATH, "appserver/libs/");
 		setProperty(JAVASCRIPT_SUFFIX, ".js");
 		setProperty(APP_CONFIG_SUFFIX, ".cfg");
