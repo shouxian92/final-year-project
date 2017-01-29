@@ -15,6 +15,8 @@ package com.shouxian.californiumtestapp;
  *    Matthias Kovatsch - creator and main architect
  ******************************************************************************/
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -52,6 +54,7 @@ public class ServerService extends Service {
         }*/
 
         server.add(new HelloWorldResource());
+        server.add(new MatricNumberResource());
     }
 
     @Override
@@ -71,6 +74,33 @@ public class ServerService extends Service {
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    class MatricNumberResource extends CoapResource {
+        String payload = "No admin number set yet";
+
+        public MatricNumberResource() {
+            super("matric_notify");
+            getAttributes().setTitle("Matric Number Notifcation Resource");
+        }
+
+        public void handleGET(CoapExchange exchange) {
+            // respond to the request
+            exchange.respond(payload);
+        }
+
+        public void handlePOST(CoapExchange exchange) {
+            payload = new String(exchange.getRequestPayload());
+
+            NotificationManager notificationManager =
+                    (NotificationManager) getSystemService(Service.NOTIFICATION_SERVICE);
+            Notification notification = new Notification(/* your notification */);
+            // PendingIntent pendingIntent = ServerService.this;
+            // notification.setLatestEventInfo(this, /* your content */, pendingIntent);
+            notificationManager.notify(100/* id */, notification);
+
+            exchange.respond("Updated admin number to "+ payload +"!");
+        }
     }
 
     class HelloWorldResource extends CoapResource {

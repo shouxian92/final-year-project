@@ -16,17 +16,18 @@
  ******************************************************************************/
 package org.eclipse.californium.actinium.plugnplay;
 
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
-import java.util.logging.Logger;
-
 import org.eclipse.californium.actinium.AppManager;
 import org.eclipse.californium.actinium.cfg.AbstractConfig.ConfigChangeSet;
 import org.eclipse.californium.actinium.cfg.AppConfig;
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 import org.eclipse.californium.core.server.resources.Resource;
+
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.logging.Logger;
 
 /**
  * AbstractApp is the parent class for all sorts of apps and a CoAP resource. So
@@ -63,6 +64,8 @@ public abstract class AbstractApp extends CoapResource implements PlugAndPlayabl
 	// Recevier for all requests, which then get executed one after another by the app's thread
 	private WorkQueue requestReceiver;
 	public Set<String> dependencies;
+
+	CountDownLatch countDownLatch;
 
 	/**
 	 * Constructs a new AbstractApp with the specified properties. If the
@@ -308,5 +311,9 @@ public abstract class AbstractApp extends CoapResource implements PlugAndPlayabl
 
 	public AppManager getManager() {
 		return manager;
+	}
+
+	public void setCountDownLatch(CountDownLatch countDownLatch) {
+		this.countDownLatch = countDownLatch;
 	}
 }

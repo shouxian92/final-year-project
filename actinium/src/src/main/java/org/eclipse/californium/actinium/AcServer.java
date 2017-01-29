@@ -16,12 +16,13 @@
  ******************************************************************************/
 package org.eclipse.californium.actinium;
 
-import java.net.SocketException;
-
 import org.eclipse.californium.actinium.cfg.Config;
 import org.eclipse.californium.actinium.install.InstallResource;
 import org.eclipse.californium.actinium.libs.LibsResource;
 import org.eclipse.californium.core.CoapServer;
+
+import java.net.SocketException;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Actinium (Ac) App-server for Californium
@@ -42,6 +43,8 @@ public class AcServer extends CoapServer {
 	
 	// resource that holds the stats for all app instances
 	private StatsResource stats;
+
+	private CountDownLatch cdl;
 	
 	/**
 	 * Constructs a new Actinium app-server with the specified config.
@@ -51,15 +54,17 @@ public class AcServer extends CoapServer {
 	public AcServer(Config config) throws SocketException {
 		
 		//Log.setLevel(Level.ALL);
-		
+
 		this.manager = new AppManager(config);
-		
+
 		AppResource appres = new AppResource(manager);
 		InstallResource insres = new InstallResource(manager);
 
 		this.add(appres);
 		this.add(insres);
 
+		cdl = new CountDownLatch(appres.getAllApps().length);
+		appres.setCountDownlatch(cdl);
 
 		LibsResource libsres = new LibsResource(manager);
 		this.add(libsres);
@@ -78,14 +83,22 @@ public class AcServer extends CoapServer {
 	 */
 	public static void main(String[] args) {
 		try {
-			
+			long startTime = System.currentTimeMillis();
 			Config config = new Config();
 			AcServer server = new AcServer(config);
 			server.start();
+
+			// wait for all processes to finish starting up
+			server.cdl.await();
+			long endTime   = System.currentTimeMillis();
+			long totalTime = endTime - startTime;
+			System.out.println("Time taken: " + totalTime + "ms");
 			
 			System.out.println("Actinium (Ac) App-server listening on port "+server.getEndpoints().get(0).getAddress().getPort());
 			
 		} catch (SocketException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}

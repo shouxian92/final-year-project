@@ -210,27 +210,37 @@ public class JavaScriptApp extends AbstractApp implements JavaScriptCoapConstant
 			engine.eval(defaults, context);
 
 			// TODO: SX stuff
+			// instantiate a new custom class to handle variables
 			varManager = new VariableManager(this);
 			Set<String> initialKeys = engineScope.keySet();
 
 			code = defaults + "(function () {" + code + "}).apply({});";
 			engine.eval(code, context);
 
-
-			if(varManager.varConfigExists()) {
-				String varConfigCode = varManager.loadFromVarConfigFile();
-				engine.eval(varConfigCode, context);
-			} else {
-				Set<String> afterKeys = engineScope.keySet();
-				for(String s : afterKeys) {
-					if(!initialKeys.contains(s)) {
-						varManager.addMapping(s, engineScope.get(s));
-						System.out.println(s + " is a variable defined by the user (current value is: " + engineScope.get(s) + ").");
+			// checks whether if the file has a file which stores the values of the variable
+			try {
+				if (varManager.varConfigExists()) {
+					// if the file exists, then we load variables from the file
+					String varConfigCode = varManager.loadFromVarConfigFile();
+					engine.eval(varConfigCode, context);
+				} else {
+					// if not we create the file according to the set of keys available from the global scope
+					Set<String> afterKeys = engineScope.keySet();
+					for (String s : afterKeys) {
+						if (!initialKeys.contains(s)) {
+							varManager.addMapping(s, engineScope.get(s));
+							System.out.println(s + " is a variable defined by the user (current value is: " + engineScope.get(s) + ").");
+						}
 					}
+					varManager.saveToVarConfigFile();
 				}
-				varManager.saveToVarConfigFile();
+			} catch(NoSuchElementException e) {
+				// when the varConfig file exists but the file is empty
+				// do nothing
 			}
 
+			// found in the abstract class of this file
+			countDownLatch.countDown();
 			// TODO: end of sx
 
         } catch (RuntimeException|ScriptException e) {

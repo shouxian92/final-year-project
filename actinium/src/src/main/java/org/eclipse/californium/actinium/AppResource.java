@@ -16,13 +16,6 @@
  ******************************************************************************/
 package org.eclipse.californium.actinium;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-
 import org.eclipse.californium.actinium.cfg.AbstractConfig.ConfigChangeSet;
 import org.eclipse.californium.actinium.cfg.AppConfig;
 import org.eclipse.californium.actinium.cfg.AppConfigsResource;
@@ -30,6 +23,10 @@ import org.eclipse.californium.actinium.cfg.Config;
 import org.eclipse.californium.actinium.plugnplay.AbstractApp;
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.server.resources.CoapExchange;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * AppResource is the root of all resources around instances of apps. It
@@ -60,6 +57,8 @@ public class AppResource extends CoapResource {
 	
 	// the resource that holds the running apps
 	private RunningResource runningRes;
+
+	private CountDownLatch cdl;
 
 	/**
 	 * Constructs a new AppResource with the specified app server config and
@@ -96,6 +95,7 @@ public class AppResource extends CoapResource {
 	public void startApps() {
 		for (AbstractApp app:apps) {
 			if (app.getConfig().getBool(AppConfig.START_ON_STARTUP)) {
+				app.setCountDownLatch(cdl);
 				app.start();
 			}
 		}
@@ -258,5 +258,13 @@ public class AppResource extends CoapResource {
 				app.getConfig().setPropertyAndNotify(AppConfig.RUNNING, AppConfig.RESTART);
 			}
 		}
+	}
+
+	public void setCountDownlatch(CountDownLatch countDownlatch) {
+		this.cdl = countDownlatch;
+	}
+
+	public CountDownLatch getCountDownlatch(){
+		return cdl;
 	}
 }

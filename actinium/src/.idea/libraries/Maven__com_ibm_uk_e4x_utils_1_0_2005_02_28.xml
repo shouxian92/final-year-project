@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.ibm.uk:e4x-utils:1.0-2005-02-28">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/ibm/uk/e4x-utils/1.0-2005-02-28/e4x-utils-1.0-2005-02-28.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/ibm/uk/e4x-utils/1.0-2005-02-28/e4x-utils-1.0-2005-02-28-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/ibm/uk/e4x-utils/1.0-2005-02-28/e4x-utils-1.0-2005-02-28-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

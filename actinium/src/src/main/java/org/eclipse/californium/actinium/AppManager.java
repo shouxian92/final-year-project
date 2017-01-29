@@ -16,17 +16,17 @@
  ******************************************************************************/
 package org.eclipse.californium.actinium;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.eclipse.californium.actinium.cfg.AppConfig;
 import org.eclipse.californium.actinium.cfg.AppType;
 import org.eclipse.californium.actinium.cfg.Config;
 import org.eclipse.californium.actinium.plugnplay.AbstractApp;
 import org.eclipse.californium.actinium.plugnplay.JavaScriptApp;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 
 /**
