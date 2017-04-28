@@ -278,17 +278,42 @@ public class JavaScriptApp extends AbstractApp implements JavaScriptCoapConstant
 
 	@Override
 	public void handlePUT(CoapExchange request) {
-		if (this.onput==null) {
+		// TODO: Variable saving start
+		if(request.getRequestText().split("\\n")[0].compareTo("actinium_var_update") == 0) {
+			try {
+				String[] newLineSplittedArray = request.getRequestText().split("\\n");
+				newLineSplittedArray[0] = "";
+				String toExecute = String.join(" ", newLineSplittedArray);
+
+				// execute whatever assignment code was given
+				engine.eval(toExecute, context);
+
+				// using variable manager to get app defined variables
+				Set<String> varNames = varManager.getVariableBindings().keySet();
+
+				Iterator e = varNames.iterator();
+				while(e.hasNext()) {
+					String varName = e.next().toString();
+					// using the keyname to retrieve the values from the engine scope
+					varManager.addMapping(varName, context.getBindings(ScriptContext.ENGINE_SCOPE).get(varName));
+
+				}
+
+				varManager.saveToVarConfigFile(); // save the current configuration to the file
+
+				// System.out.println(new String(request.getRequestPayload()));
+				request.respond(ResponseCode.VALID, "Variables has been added/updated");
+			} catch (ScriptException e) {
+				request.respond(ResponseCode.BAD_REQUEST, "There is an error in your syntax: " + e.getMessage());
+			}
+		}
+		// TODO: Variable saving end
+
+		else if (this.onput==null) {
 			request.respond(ResponseCode.METHOD_NOT_ALLOWED, "PUT handler not implemented");
 		} else if (!appcfg.getBool(AppConfig.ENABLE_REQUEST_DELIVERY)) {
 			request.respond(ResponseCode.FORBIDDEN, "Request delivery has been disabled for this app");
 		} else {
-
-			// TODO: remove plz sx
-			// request.getRequestPayload();
-
-			System.out.println(new String(request.getRequestPayload()));
-
 			requestHandler.handlePUT(request);
 		}
 	}

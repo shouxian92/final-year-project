@@ -28,6 +28,10 @@ public class VariableManager {
         engineScope = new SimpleBindings();
     }
 
+    public Bindings getVariableBindings() {
+        return engineScope;
+    }
+
     public void addMapping(String key, Object val) {
         if(engineScope.containsKey(key)) {
             engineScope.replace(key, val);
