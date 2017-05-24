@@ -3,7 +3,7 @@
 import getopt
 import sys
 from coapthon.server.coap import CoAP
-from exampleresources import BasicResource, Long, Separate, Storage, Big, voidResource, XMLResource, ETAGResource, \
+from exampleresources import DisplayResource, GreenLEDResource, BlueLEDResource,BasicResource, Long, Separate, Storage, Big, voidResource, XMLResource, ETAGResource, \
     Child, \
     MultipleEncodingResource
 
@@ -13,8 +13,11 @@ __author__ = 'Giacomo Tanganelli'
 class CoAPServer(CoAP):
     def __init__(self, host, port, multicast=False):
         CoAP.__init__(self, (host, port), multicast)
-        for i in range(1):
-            self.add_resource('basic_' + str(i) + '/', BasicResource())
+        self.add_resource('display_res/', DisplayResource())
+        self.add_resource('green_led_res/', GreenLEDResource())
+        self.add_resource('blue_led_res/', BlueLEDResource())
+        #for i in range(1):
+        #    self.add_resource('basic_' + str(i) + '/', BasicResource())
 
         print "CoAP Server start on " + host + ":" + str(port)
         print self.root.dump()
@@ -25,7 +28,7 @@ def usage():  # pragma: no cover
 
 
 def main(argv):  # pragma: no cover
-    ip = "192.168.1.7"
+    ip = "192.168.43.102"
     port = 5683
     multicast = False
     try:

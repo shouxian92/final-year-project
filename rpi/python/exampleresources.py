@@ -14,6 +14,101 @@ prevTemp = 0
 
 __author__ = 'Giacomo Tanganelli'
 
+class DisplayResource(Resource):
+    def __init__(self, name="DisplayResource", coap_server=None):
+        super(DisplayResource, self).__init__(name, coap_server, visible=True,
+                                            observable=True, allow_children=True)
+        self.payload = "Display Resource"
+        self.resource_type = "rt1"
+        self.content_type = "text/plain"
+        self.interface_type = "if1"
+
+        matric_number = "U12345678A"
+
+        try:
+                setText("Display Resource Init")
+                setRGB(0,128,64)
+		setRGB(0,255,0)
+	except (IOError,TypeError) as e:
+		print("Error.")
+
+    def render_GET(self, request):
+        self.payload = matric_number
+        return self
+
+    def render_PUT(self, request):
+        self.edit_resource(request)
+        return self
+
+    def render_POST(self, request):
+        # update text on LCD
+        setRGB(0,0,255)
+        setText(request.payload)
+        setRGB(0,255,0)
+
+        '''
+        host, port, path = parse_uri(path)
+        client = HelperClient(server=(host, port))        
+        response = client.post(path, request.payload)
+        print response.pretty_print()
+        client.stop()
+        '''
+        
+        return self
+
+    def render_DELETE(self, request):
+        return True
+
+green_led = 3
+blue_led = 2
+
+class GreenLEDResource(Resource):
+    def __init__(self, name="GreenLEDResource", coap_server=None):
+        super(GreenLEDResource, self).__init__(name, coap_server, visible=True,
+                                            observable=True, allow_children=True)
+        self.payload = "Green LED Resource"
+        self.resource_type = "rt1"
+        self.content_type = "text/plain"
+        self.interface_type = "if1"
+
+        try:
+            # turn green_led on and off to signify that the resource has successfully been created
+            digitalWrite(green_led,1)
+            time.sleep(1)
+            digitalWrite(green_led,0)
+        except (IOError,TypeError) as e:
+		print("Green LED Error")
+            
+    def render_PUT(self, request):
+        digitalWrite(green_led, int(request.payload))
+        time.sleep(5)
+        digitalWrite(green_led,0)
+        return self
+
+class BlueLEDResource(Resource):
+    def __init__(self, name="BlueEDResource", coap_server=None):
+        super(BlueLEDResource, self).__init__(name, coap_server, visible=True,
+                                            observable=True, allow_children=True)
+        self.payload = "Blue LED Resource"
+        self.resource_type = "rt1"
+        self.content_type = "text/plain"
+        self.interface_type = "if1"
+
+        try:
+            # turn green_led on and off to signify that the resource has successfully been created
+            digitalWrite(blue_led,1)
+            time.sleep(1)
+            digitalWrite(blue_led,0)
+        except (IOError,TypeError) as e:
+		print("BLUE LED Error")
+            
+    def render_PUT(self, request):
+        digitalWrite(blue_led, int(request.payload))
+        time.sleep(5)
+        digitalWrite(blue_led,0)
+        
+        return self
+            
 
 class BasicResource(Resource):
     def __init__(self, name="BasicResource", coap_server=None):
@@ -72,7 +167,7 @@ class BasicResource(Resource):
         setText(request.payload)
 
 
-        path = "coap://192.168.1.8:5683/lookup-matric";
+        # path = "coap://192.168.1.8:5683/lookup-matric";
 
         host, port, path = parse_uri(path)
         client = HelperClient(server=(host, port))        
